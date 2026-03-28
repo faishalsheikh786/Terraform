@@ -253,7 +253,7 @@ Example:
 ```
 ami_id        = "ami-0ecb62995f68bb549"
 instance_name = "DevInstance"
-project_name  = "TalentCogetentProject"
+project_name  = "TalentCogentProject"
 environment   = "dev"
 owner         = "Faishal"
 ```
@@ -272,69 +272,225 @@ terraform-prod.tfvars
 
 ---
 
-# Terraform Workflow
+# Terraform Workflow (Step-by-Step)
 
-### Step 1 — Initialize Terraform
+Below are the **commands used to run this Terraform project from start to finish**.
+
+---
+
+# Step 1 — Initialize Terraform
 
 ```
 terraform init
 ```
 
-Downloads:
+### What this command does
 
-* provider plugins
-* module dependencies
-* backend configuration
+* Downloads required **provider plugins**
+* Configures the **S3 backend**
+* Connects to **DynamoDB state locking**
+* Creates the `.terraform` directory
+* Prepares Terraform to run infrastructure commands
+
+Example output:
+
+```
+Terraform has been successfully initialized!
+```
+
+This command should be run **only once when setting up the project or after changes to backend/providers**.
 
 ---
 
-### Step 2 — Create Workspace
+# Step 2 — Format Terraform Code
+
+```
+terraform fmt
+```
+
+### Purpose
+
+Formats Terraform files according to standard style conventions.
+
+Benefits:
+
+* Consistent code formatting
+* Easier collaboration
+* Cleaner pull requests
+
+Example fixes:
+
+* indentation
+* spacing
+* consistent alignment
+
+---
+
+# Step 3 — Validate Terraform Configuration
+
+```
+terraform validate
+```
+
+### Purpose
+
+Checks whether the Terraform configuration files are **syntactically correct**.
+
+Terraform verifies:
+
+* variables are correctly defined
+* modules exist
+* resource configuration is valid
+
+Example output:
+
+```
+Success! The configuration is valid.
+```
+
+---
+
+# Step 4 — Create or Select Workspace
+
+Workspaces allow **multiple environments using the same Terraform code**.
+
+### Create a new workspace
 
 ```
 terraform workspace new dev
 ```
 
-or switch workspace
+### Switch to an existing workspace
 
 ```
 terraform workspace select dev
 ```
 
+### List all workspaces
+
+```
+terraform workspace list
+```
+
+Example output:
+
+```
+default
+* dev
+stage
+prod
+```
+
+`*` indicates the **current active workspace**.
+
+Each workspace maintains its **own Terraform state**.
+
 ---
 
-### Step 3 — Plan Infrastructure
+# Step 5 — Plan Infrastructure Changes
 
 ```
 terraform plan -var-file="terraform-dev.tfvars"
 ```
 
-Shows what Terraform will create.
+### Purpose
 
-Example:
+Shows what Terraform **will create, modify, or destroy** before making changes.
+
+Terraform compares:
+
+```
+Current state vs Desired state
+```
+
+Example output:
 
 ```
 Plan: 1 to add, 0 to change, 0 to destroy.
 ```
 
+This step is important because it allows engineers to **review infrastructure changes safely before applying them**.
+
 ---
 
-### Step 4 — Apply Infrastructure
+# Step 6 — Apply Infrastructure
 
 ```
 terraform apply -var-file="terraform-dev.tfvars"
 ```
 
-Terraform provisions the EC2 instance.
+### Purpose
+
+Creates or updates infrastructure in AWS.
+
+Terraform will ask confirmation:
+
+```
+Do you want to perform these actions?
+```
+
+Type:
+
+```
+yes
+```
+
+Terraform then provisions the EC2 instance.
+
+Example output:
+
+```
+aws_instance.name: Creation complete
+```
+
+After completion, the EC2 instance will be visible in the **AWS Console**.
 
 ---
 
-### Step 5 — Destroy Infrastructure
+# Step 7 — Verify Infrastructure
+
+After running `terraform apply`, verify the instance.
+
+Open:
+
+```
+AWS Console → EC2 → Instances
+```
+
+Expected tags:
+
+```
+Name: DevInstance
+Project: TalentCogentProject
+Environment: dev
+Owner: Faishal
+```
+
+---
+
+# Step 8 — Destroy Infrastructure (Optional)
 
 ```
 terraform destroy -var-file="terraform-dev.tfvars"
 ```
 
-Deletes created resources.
+### Purpose
+
+Deletes all infrastructure created by Terraform.
+
+Terraform will ask confirmation:
+
+```
+Do you really want to destroy all resources?
+```
+
+Type:
+
+```
+yes
+```
+
+This removes the EC2 instance and updates the Terraform state.
 
 ---
 
@@ -342,7 +498,7 @@ Deletes created resources.
 
 Workspaces allow **multiple environments using the same code**.
 
-Example:
+Example environments:
 
 ```
 dev
@@ -350,9 +506,9 @@ stage
 prod
 ```
 
-Terraform internally stores state separately for each workspace.
+Terraform stores state separately for each workspace.
 
-Directory example:
+Example directory:
 
 ```
 terraform.tfstate.d/
@@ -402,6 +558,8 @@ https://aws.amazon.com/cli/
 
 # Configure AWS Credentials
 
+Before running Terraform, configure AWS credentials.
+
 ```
 aws configure
 ```
@@ -410,9 +568,11 @@ Provide:
 
 ```
 AWS Access Key
-AWS Secret Key
+AWS Secret Access Key
 Region
 ```
+
+This allows Terraform to authenticate with AWS.
 
 ---
 
@@ -426,7 +586,7 @@ This repository follows industry standards:
 * State locking
 * Environment separation
 * Tagging strategy
-* Workspace based deployments
+* Workspace-based deployments
 
 ---
 
