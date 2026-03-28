@@ -1,0 +1,6 @@
+ami_id        = "ami-0ecb62995f68bb549"
+# instance_type = "t3.micro"
+instance_name = "StageInstance"
+project_name  = "TalentCogetentProject"
+environment   = "stage"
+owner         = "Faishal"
